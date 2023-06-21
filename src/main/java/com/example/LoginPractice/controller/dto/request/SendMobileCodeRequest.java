@@ -1,4 +1,4 @@
-package com.example.LoginPractice.controller.dto;
+package com.example.LoginPractice.controller.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

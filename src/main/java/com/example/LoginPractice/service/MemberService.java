@@ -2,7 +2,8 @@ package com.example.LoginPractice.service;
 
 
 import com.example.LoginPractice.config.CheckErrorException;
-import com.example.LoginPractice.controller.dto.*;
+import com.example.LoginPractice.controller.dto.request.*;
+import com.example.LoginPractice.controller.dto.response.*;
 import com.example.LoginPractice.model.Member;
 import com.example.LoginPractice.service.enums.CheckStatusEnum;
 import com.example.LoginPractice.service.enums.MemberStatusEnum;
@@ -11,7 +12,7 @@ import com.example.LoginPractice.service.outbound.EventPublisher;
 import com.example.LoginPractice.service.outbound.dto.MemberCommittedEvent;
 import com.example.LoginPractice.service.outbound.dto.SentEmailCodeEvent;
 import com.example.LoginPractice.service.outbound.dto.SentMobileCodeEvent;
-import com.example.LoginPractice.service.utils.MakeVerificationCode;
+import com.example.LoginPractice.service.utils.GenerateVerificationCodeUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +46,7 @@ public class MemberService {
             member = new Member(request);
         }
 
-        member.setEmailCode(MakeVerificationCode.MakeVerificationEmailCode(20));
+        member.setEmailCode(GenerateVerificationCodeUtil.MakeVerificationCode(20));
         member.setEmailCodeExpire(makeExpireTime());
         member.setStatus(MemberStatusEnum.SEND_EMAIL_CODE.getStatusCode());
 
@@ -100,7 +101,7 @@ public class MemberService {
 
         Member member = optionalMemberByEmail.get();
         member.setPhone(request.getCellphone());
-        member.setMobileCode(MakeVerificationCode.MakeVerificationMobileCode(6));
+        member.setMobileCode(GenerateVerificationCodeUtil.MakeVerificationCode(6));
         member.setMobileCodeExpire(makeExpireTime());
         member.setStatus(MemberStatusEnum.SEND_MOBILE_CODE.getStatusCode());
         memberRepository.save(member);

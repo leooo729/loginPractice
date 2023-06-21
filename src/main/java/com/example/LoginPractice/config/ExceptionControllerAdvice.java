@@ -1,6 +1,6 @@
 package com.example.LoginPractice.config;
 
-import com.example.LoginPractice.controller.dto.FailResponse;
+import com.example.LoginPractice.controller.dto.response.FailResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
 package com.example.LoginPractice.model;
 
 
-import com.example.LoginPractice.controller.dto.SendEmailCodeRequest;
+import com.example.LoginPractice.controller.dto.request.SendEmailCodeRequest;
 import lombok.*;
 
 import javax.persistence.*;
