@@ -166,7 +166,7 @@ public class MemberService {
         calendar.add(Calendar.MINUTE, 10);
         return calendar.getTime();
     }
-    //------------------------------------------------------------------------------Check
+    //------------------------------------------------------------------------------multiple Check
 
     private void checkSendEmail(Member member) {
 
