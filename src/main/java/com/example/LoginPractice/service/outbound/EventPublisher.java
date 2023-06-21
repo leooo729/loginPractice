@@ -1,6 +1,6 @@
 package com.example.LoginPractice.service.outbound;
 
-import com.example.LoginPractice.eventlistener.InfoEventListener;
+import com.example.LoginPractice.eventlistener.EventListener;
 import com.google.common.eventbus.EventBus;
 import org.springframework.stereotype.Component;
 
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class EventPublisher{
     private final EventBus eventBus;
 
-    public EventPublisher(InfoEventListener infoEventListener) {
+    public EventPublisher(EventListener infoEventListener) {
         this.eventBus = new EventBus();
         eventBus.register(infoEventListener);
     }

@@ -10,7 +10,7 @@ import com.google.common.eventbus.Subscribe;
 import org.springframework.stereotype.Component;
 
 @Component
-public class InfoEventListener {
+public class EventListener {
 
     ObjectMapper objectMapper = new ObjectMapper();
     private  ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
