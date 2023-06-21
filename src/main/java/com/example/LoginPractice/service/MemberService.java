@@ -65,7 +65,7 @@ public class MemberService {
 
         if (optionalMember.isPresent()) {
             //checkValid
-            this.checkVerifyEmail(optionalMember.get());
+            this.checkVerifyEmailCode(optionalMember.get());
             //check c1.驗證碼是否正確
             this.checkEmailCodeValid(optionalMember.get(), request.getEmailCode());
 
@@ -120,9 +120,8 @@ public class MemberService {
         if (optionalMember.isPresent()) {
             //checkValid
             this.checkVerifyMobileCode(optionalMember.get());
-            //check c1
+            //check c1檢核手機驗證碼是否正確
             this.checkMobileCode(optionalMember.get(), request.getMobileCode());
-
 
             optionalMember.get().setStatus(MemberStatusEnum.VERIFIED_MOBILE_CODE.getStatusCode());
             memberRepository.save(optionalMember.get());
@@ -186,7 +185,7 @@ public class MemberService {
         }
     }
 
-    private void checkVerifyEmail(Member member) {
+    private void checkVerifyEmailCode(Member member) {
 
         //a1.狀態為碼已傳送Mail(0) 且驗證已過期
         if (this.checkEmailCodeExpire(member))
