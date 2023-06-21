@@ -239,7 +239,6 @@ public class MemberService {
     }
 
     private void checkEmailCodeValid(Member member, String emailCode) {
-        //c1
         if (!member.getEmailCode().equals(emailCode))
             throw new CheckErrorException(CheckStatusEnum.EMAIL_CODE_INCORRECT);
     }
