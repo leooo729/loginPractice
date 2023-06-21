@@ -7,6 +7,10 @@ import com.example.LoginPractice.model.Member;
 import com.example.LoginPractice.service.enums.CheckStatusEnum;
 import com.example.LoginPractice.service.enums.MemberStatusEnum;
 import com.example.LoginPractice.repository.MemberRepository;
+import com.example.LoginPractice.service.outbound.EventPublisher;
+import com.example.LoginPractice.service.outbound.dto.MemberCommittedEvent;
+import com.example.LoginPractice.service.outbound.dto.SentEmailCodeEvent;
+import com.example.LoginPractice.service.outbound.dto.SentMobileCodeEvent;
 import com.example.LoginPractice.service.utils.MakeVerificationCode;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,7 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final EventPublisher eventPublisher;
 
     public SendEmailCodeResponse sendEmailCode(SendEmailCodeRequest request) {
         SendEmailCodeResponse response = new SendEmailCodeResponse();
@@ -45,6 +50,9 @@ public class MemberService {
         member.setStatus(MemberStatusEnum.SEND_EMAIL_CODE.getStatusCode());
 
         memberRepository.save(member);
+
+        SentEmailCodeEvent event = new SentEmailCodeEvent(member.getEmail(), member.getName(), member.getEmailCode());
+        eventPublisher.publish(event);
 
         return response;
     }
@@ -97,6 +105,9 @@ public class MemberService {
         member.setStatus(MemberStatusEnum.SEND_MOBILE_CODE.getStatusCode());
         memberRepository.save(member);
 
+        SentMobileCodeEvent event = new SentMobileCodeEvent(member.getEmail(), member.getName(), member.getPhone(), member.getMobileCode());
+        eventPublisher.publish(event);
+
         return response;
     }
 
@@ -138,6 +149,10 @@ public class MemberService {
             memberRepository.save(member);
 
             response.setId(member.getId());
+
+            MemberCommittedEvent event = new MemberCommittedEvent(member.getEmail(), member.getName(), member.getPhone());
+            eventPublisher.publish(event);
+
         } else {
             throw new CheckErrorException(CheckStatusEnum.REGISTRATION_DATA_NOT_FOUND);
         }

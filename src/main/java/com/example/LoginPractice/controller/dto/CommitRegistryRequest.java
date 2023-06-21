@@ -29,7 +29,7 @@ public class CommitRegistryRequest {
     private String account;
 
     @NotBlank(message = "password不可為空")
-    @Pattern(regexp = "^$|[a-zA-Z0-9]", message = "該password欄位格式不正確,只能包含數字跟英文。")
+    @Pattern(regexp = "^$|[a-zA-Z0-9]+", message = "該password欄位格式不正確,只能包含數字跟英文。")
     private String password;
 
 }
