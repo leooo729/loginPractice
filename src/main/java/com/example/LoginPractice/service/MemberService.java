@@ -249,10 +249,10 @@ public class MemberService {
             throw new CheckErrorException(CheckStatusEnum.EMAIL_CODE_INCORRECT);
     }
 
-    private boolean checkMobileCodeExpire(Member memberByEmail) {
+    private boolean checkMobileCodeExpire(Member member) {
         //檢核待驗證的手機已申請 但尚未認證
-        if (memberByEmail.getStatus().equals(MemberStatusEnum.SEND_MOBILE_CODE.getStatusCode())) {
-            if (memberByEmail.getMobileCodeExpire().before(new Date())) {  //a6.驗證碼已過期
+        if (member.getStatus().equals(MemberStatusEnum.SEND_MOBILE_CODE.getStatusCode())) {
+            if (member.getMobileCodeExpire().before(new Date())) {  //a6.驗證碼已過期
                 return true;
             } //a7.驗證碼未過期
             throw new CheckErrorException(CheckStatusEnum.PHONE_CODE_NOT_EXPIRED);
@@ -260,8 +260,8 @@ public class MemberService {
         return false;
     }
 
-    private void checkPhoneExist(Member memberByEmail, String phone) {
-        if (!phone.equals(memberByEmail.getPhone()))
+    private void checkPhoneExist(Member member, String phone) {
+        if (!phone.equals(member.getPhone()))
             throw new CheckErrorException(CheckStatusEnum.PHONE_ALREADY_REGISTERED);
     }
 
