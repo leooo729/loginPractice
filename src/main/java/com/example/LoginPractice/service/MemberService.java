@@ -174,10 +174,8 @@ public class MemberService {
         this.checkSendMobileCodeStatusAndVerifiedEmailCodeStatus(member);
 
         // a3.狀態為已完成Mail跟手機的驗證 只差基本資料填寫(3)
-        this.checkVerifiedMobileCodeStatus(member);
-
         // a4.狀態為已完成Mail跟手機的驗證 基本資料也填寫完畢(4)
-        this.checkFinishedRegistryStatus(member);
+        this.checkVerifiedMobileCodeStatusAndFinishedRegistryStatus(member);
 
         // a6.狀態為已傳送Mail驗證碼(0) 且驗證碼尚未過期
         if (member.getStatus().equals(MemberStatusEnum.SEND_EMAIL_CODE.getStatusCode()) && !this.checkEmailCodeExpire(member)) {
@@ -194,11 +192,9 @@ public class MemberService {
         //b1.狀態為已傳送手機號碼(2) （此處不需判斷驗證碼是否過期） 或是 狀態為已驗證完Mail(1)
         this.checkSendMobileCodeStatusAndVerifiedEmailCodeStatus(member);
 
-        // b2.狀態為已完成Mail跟手機的驗證 只差基本資料填寫(3)
-        this.checkVerifiedMobileCodeStatus(member);
-
+        //b2.狀態為已完成Mail跟手機的驗證 只差基本資料填寫(3)
         //b3.狀態為已完成Mail跟手機的驗證 基本資料也填寫完畢(4)
-        this.checkFinishedRegistryStatus(member);
+        this.checkVerifiedMobileCodeStatusAndFinishedRegistryStatus(member);
     }
 
     private void checkSendMobile(Member member) {
@@ -207,11 +203,9 @@ public class MemberService {
         if (member.getStatus().equals(MemberStatusEnum.SEND_EMAIL_CODE.getStatusCode()))
             throw new CheckErrorException(this.checkEmailCodeExpire(member) ? CheckStatusEnum.EMAIL_CODE_EXPIRED : CheckStatusEnum.EMAIL_CODE_NOT_EXPIRED);
 
-        // a3.狀態為已完成Mail跟手機的驗證 只差基本資料填寫(3)
-        this.checkVerifiedMobileCodeStatus(member);
-
+        //a3.狀態為已完成Mail跟手機的驗證 只差基本資料填寫(3)
         //a5.狀態為已完成Mail跟手機的驗證 基本資料也填寫完畢(4)
-        this.checkFinishedRegistryStatus(member);
+        this.checkVerifiedMobileCodeStatusAndFinishedRegistryStatus(member);
 
     }
 
@@ -224,10 +218,8 @@ public class MemberService {
         }
 
         // b2.狀態為已完成Mail跟手機的驗證 只差基本資料填寫(3)
-        this.checkVerifiedMobileCodeStatus(member);
-
         // b3.狀態為已完成Mail跟手機的驗證 基本資料也填寫完畢(4)
-        this.checkFinishedRegistryStatus(member);
+        this.checkVerifiedMobileCodeStatusAndFinishedRegistryStatus(member);
     }
 
     //------------------------------------------------------------------------------Check
@@ -278,5 +270,11 @@ public class MemberService {
     private void checkMobileCode(Member member, String mobileCode) {
         if (!member.getMobileCode().equals(mobileCode))
             throw new CheckErrorException(CheckStatusEnum.PHONE_CODE_INCORRECT);
+    }
+    private void checkVerifiedMobileCodeStatusAndFinishedRegistryStatus(Member member){
+        // 狀態為已完成Mail跟手機的驗證 只差基本資料填寫(3)
+        this.checkVerifiedMobileCodeStatus(member);
+        // 狀態為已完成Mail跟手機的驗證 基本資料也填寫完畢(4)
+        this.checkFinishedRegistryStatus(member);
     }
 }
