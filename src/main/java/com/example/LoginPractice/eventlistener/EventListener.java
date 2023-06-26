@@ -13,20 +13,19 @@ import org.springframework.stereotype.Component;
 public class EventListener {
 
     ObjectMapper objectMapper = new ObjectMapper();
-    private  ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
 
     @Subscribe
     public void sendEmailCodeEvent(SentEmailCodeEvent event) throws JsonProcessingException {
-        System.out.println(writer.writeValueAsString(event));
+        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(event));
     }
 
     @Subscribe
     public void sendMobileCodeEvent(SentMobileCodeEvent event) throws JsonProcessingException {
-        System.out.println(writer.writeValueAsString(event));
+        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(event));
     }
 
     @Subscribe
     public void memberCommittedEvent(MemberCommittedEvent event) throws JsonProcessingException {
-        System.out.println(writer.writeValueAsString(event));
+        System.out.println(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(event));
     }
 }

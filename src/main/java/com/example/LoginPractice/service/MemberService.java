@@ -43,6 +43,7 @@ public class MemberService {
             response.setStatusMsg(CheckStatusEnum.EMAIL_CODE_EXPIRED.getStatusMsg());
 
         } else {
+            //資料庫無此Email註冊帳號 創一新帳號
             member = new Member(request);
         }
 
@@ -51,7 +52,7 @@ public class MemberService {
         member.setStatus(MemberStatusEnum.SEND_EMAIL_CODE.getStatusCode());
 
         memberRepository.save(member);
-
+        //發送Email驗證碼事件
         SentEmailCodeEvent event = new SentEmailCodeEvent(member.getEmail(), member.getName(), member.getEmailCode());
         eventPublisher.publish(event);
 
@@ -66,7 +67,7 @@ public class MemberService {
         if (optionalMember.isPresent()) {
             //checkValid
             this.checkVerifyEmailCode(optionalMember.get());
-            //check c1.驗證碼是否正確
+            //check c1.檢核Email驗證碼是否正確
             this.checkEmailCodeValid(optionalMember.get(), request.getEmailCode());
 
             optionalMember.get().setStatus(MemberStatusEnum.VERIFIED_EMAIL_CODE.getStatusCode());
@@ -82,6 +83,7 @@ public class MemberService {
         SendMobileCodeResponse response = new SendMobileCodeResponse();
         //透過Mail 查找Member
         Optional<Member> optionalMemberByEmail = memberRepository.findByEmail(request.getEmail());
+        //透過Phone 查找Member
         Optional<Member> optionalMemberByPhone = memberRepository.findByPhone(request.getCellphone());
 
         if (optionalMemberByEmail.isPresent()) {
@@ -91,7 +93,7 @@ public class MemberService {
             if (optionalMemberByPhone.isPresent()) {
                 this.checkPhoneExist(optionalMemberByEmail.get(), request.getCellphone());
             }
-            //檢核待驗證的手機已申請未通過 驗證碼已過期
+            //檢核待驗證的手機已申請未通過(2) 驗證碼已過期
             if (this.checkMobileCodeExpire(optionalMemberByEmail.get())) {
                 response.setStatusMsg(CheckStatusEnum.PHONE_CODE_RESEND.getStatusMsg());
             }
@@ -105,7 +107,7 @@ public class MemberService {
         member.setMobileCodeExpire(makeExpireTime());
         member.setStatus(MemberStatusEnum.SEND_MOBILE_CODE.getStatusCode());
         memberRepository.save(member);
-
+        //發送手機驗證碼事件
         SentMobileCodeEvent event = new SentMobileCodeEvent(member.getEmail(), member.getName(), member.getPhone(), member.getMobileCode());
         eventPublisher.publish(event);
 
@@ -120,7 +122,7 @@ public class MemberService {
         if (optionalMember.isPresent()) {
             //checkValid
             this.checkVerifyMobileCode(optionalMember.get());
-            //check c1檢核手機驗證碼是否正確
+            //check c1.檢核手機驗證碼是否正確
             this.checkMobileCode(optionalMember.get(), request.getMobileCode());
 
             optionalMember.get().setStatus(MemberStatusEnum.VERIFIED_MOBILE_CODE.getStatusCode());
@@ -136,7 +138,9 @@ public class MemberService {
         CommitRegistryResponse response = new CommitRegistryResponse();
         //透過Mail跟手機 查找Member
         Optional<Member> optionalMember = memberRepository.findByEmailAndPhone(request.getEmail(), request.getCellphone());
+        //確定有此註冊資料 將Request資料傳入
         if (optionalMember.isPresent()) {
+
             Member member = optionalMember.get();
             member.setName(request.getName());
             member.setAddress(request.getAddress());
@@ -149,7 +153,7 @@ public class MemberService {
             memberRepository.save(member);
 
             response.setId(member.getId());
-
+            //發送註冊完成事件
             MemberCommittedEvent event = new MemberCommittedEvent(member.getEmail(), member.getName(), member.getPhone());
             eventPublisher.publish(event);
 
@@ -161,6 +165,7 @@ public class MemberService {
     }
 
     //------------------------------------------------------------------------------Method
+    //產生驗證碼過期時間
     private Date makeExpireTime() {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, 10);
@@ -227,10 +232,18 @@ public class MemberService {
         this.checkFinishedRegistryStatus(member);
     }
 
-    private boolean checkEmailCodeExpire(Member member) {  //check Mail驗證碼是否過期 過期回傳 true
+    // check Email驗證碼是否過期 過期回傳 true
+    private boolean checkEmailCodeExpire(Member member) {
         return member.getEmailCodeExpire().before(new Date());
     }
 
+    //檢核Email驗證碼是否正確
+    private void checkEmailCodeValid(Member member, String emailCode) {
+        if (!member.getEmailCode().equals(emailCode))
+            throw new CheckErrorException(CheckStatusEnum.EMAIL_CODE_INCORRECT);
+    }
+
+    // 檢核狀態為 已傳送手機號碼(2) 或是 狀態為已驗證Email(1)
     private void checkSendMobileCodeStatusAndVerifiedEmailCodeStatus(Member member) {
         if (member.getStatus().equals(MemberStatusEnum.SEND_MOBILE_CODE.getStatusCode())
                 || member.getStatus().equals(MemberStatusEnum.VERIFIED_EMAIL_CODE.getStatusCode())) {
@@ -238,11 +251,7 @@ public class MemberService {
         }
     }
 
-    private void checkEmailCodeValid(Member member, String emailCode) {
-        if (!member.getEmailCode().equals(emailCode))
-            throw new CheckErrorException(CheckStatusEnum.EMAIL_CODE_INCORRECT);
-    }
-
+    //檢核待驗證的手機已申請未通過(2) 驗證碼已過期
     private boolean checkMobileCodeExpire(Member member) {
         //檢核待驗證的手機已申請 但尚未認證
         if (member.getStatus().equals(MemberStatusEnum.SEND_MOBILE_CODE.getStatusCode())) {
@@ -254,23 +263,27 @@ public class MemberService {
         return false;
     }
 
+    // 檢核手機是否已存在
     private void checkPhoneExist(Member member, String phone) {
         if (!phone.equals(member.getPhone()))
             throw new CheckErrorException(CheckStatusEnum.PHONE_ALREADY_REGISTERED);
     }
 
+    //檢核手機驗證碼是否正確
+    private void checkMobileCode(Member member, String mobileCode) {
+        if (!member.getMobileCode().equals(mobileCode))
+            throw new CheckErrorException(CheckStatusEnum.PHONE_CODE_INCORRECT);
+    }
+
+    // 狀態為已完成Mail跟手機的驗證 只差基本資料填寫(3)
     private void checkVerifiedMobileCodeStatus(Member member) {
         if (member.getStatus().equals(MemberStatusEnum.VERIFIED_MOBILE_CODE.getStatusCode()))
             throw new CheckErrorException(CheckStatusEnum.REGISTRATION_COMPLETED_TO_INFO);
     }
 
+    // 狀態為已完成Mail跟手機的驗證 基本資料也填寫完畢(4)
     private void checkFinishedRegistryStatus(Member member) {
         if (member.getStatus().equals(MemberStatusEnum.FINISHED_REGISTRY.getStatusCode()))
             throw new CheckErrorException(CheckStatusEnum.REGISTRATION_COMPLETED_TO_LOGIN);
-    }
-
-    private void checkMobileCode(Member member, String mobileCode) {
-        if (!member.getMobileCode().equals(mobileCode))
-            throw new CheckErrorException(CheckStatusEnum.PHONE_CODE_INCORRECT);
     }
 }
