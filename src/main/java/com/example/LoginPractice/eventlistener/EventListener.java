@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class EventListener {
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     @Subscribe
     public void sendEmailCodeEvent(SentEmailCodeEvent event) throws JsonProcessingException {

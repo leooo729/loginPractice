@@ -189,7 +189,7 @@ public class MemberService {
 
     private void checkVerifyEmailCode(Member member) {
 
-        //a1.狀態為碼已傳送Mail(0) 且驗證已過期
+        //a1.狀態為碼已傳送Mail(0) 且驗證碼已過期
         if (this.checkEmailCodeExpire(member))
             throw new CheckErrorException(CheckStatusEnum.EMAIL_CODE_EXPIRED);
 
